@@ -1,7 +1,7 @@
 ########## Kafka Brokers
 
 - name: Make pid file
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   copy:
     content: ""
@@ -10,7 +10,7 @@
     force: no
 
 - name: Make log directory
-  sudo: True
+  become: True
   file:
     path: "{{kafka_log_directory}}"
     owner: "{{kafka_user}}"
@@ -18,7 +18,7 @@
     state: directory
 
 - name: Make log file
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   copy:
     content: ""
@@ -27,7 +27,7 @@
     force: no
 
 - name: Make topic log directory
-  sudo: True
+  become: True
   file:
     path: "{%if 'log_dirs' in item%}{{item.log_dirs}}{%else%}{{kafka_default_topic_log_directory_prefix}}kafka-logs-{{item.broker_id}}{%endif%}"
     owner: "{{kafka_user}}"
@@ -37,7 +37,7 @@
   with_items: "{{kafka_brokers}}"
 
 - name: Install kafka broker server config
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   template: >
     src=server.properties.j2
@@ -46,7 +46,7 @@
   notify: restart kafka
 
 - name: Install kafka systemd service
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   template: >
     src=kafka-systemd.service.j2
@@ -57,7 +57,7 @@
   notify: reload config
 
 - name: Install kafka init wrapper
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   template: >
     src=kafka-init.sh.j2
@@ -67,14 +67,14 @@
   when: not (ansible_distribution == 'CentOS' and ansible_distribution_major_version > '6')
 
 - name: Make logs dir
-  sudo: True
+  become: True
   file:
     path: "{{kafka_install_dir}}/logs"
     owner: "{{kafka_user}}"
     state: directory
 
 - name: Make monit dir
-  sudo: True
+  become: True
   file:
     path: "{{kafka_monit_conf_dir}}"
     owner: root
@@ -82,7 +82,7 @@
     state: directory
 
 - name: Install monit config for kafka
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   template: >
     src=kafka.conf.j2
@@ -92,7 +92,7 @@
   when: kafka_monit_enabled
 
 - name: Uninstall monit config for kafka
-  sudo: True
+  become: True
   with_items: "{{kafka_brokers}}"
   file:
     path: "{{kafka_monit_conf_dir}}/{%if 'file_basename' in item%}{{item.file_basename}}{%else%}{{kafka_default_file_basename_prefix}}{{item.broker_id}}{%endif%}.conf"
@@ -101,7 +101,7 @@
   when: not kafka_monit_enabled
 
 - name: Make sure monit is started
-  sudo: True
+  become: True
   service: name=monit state=started
   # Does not work in CentOS7 or Fedora in CircleCI
   when: kafka_monit_enabled and (
@@ -109,12 +109,12 @@
            (ansible_os_family == "RedHat" or ansible_distribution == "CentOS")))
 
 #- name: Check service
-#  sudo: True
+#  become: True
 #  command: monit summary kafka
 #  register: kafka_status
 #  changed_when: False
 #
 #- name: Start service
-#  sudo: True
+#  become: True
 #  command: monit start kafka
 #  when: "'Running' not in kafka_status.stdout"

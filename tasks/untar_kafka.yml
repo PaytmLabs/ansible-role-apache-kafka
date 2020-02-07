@@ -12,7 +12,7 @@
   when: (install.stat.isdir is not defined or not install.stat.isdir or kafka_force_update)
 
 - name: Make unpack directory
-  sudo: True
+  become: True
   file:
     path: "{{kafka_tmp_unpack_dir}}"
     owner: "{{kafka_user}}"
@@ -21,20 +21,20 @@
 
 - name: Unpack kafka
   command: tar xvfoz "{{kafka_dl_tmp_dir}}/{{kafka_archive}}" --strip-components 1
-  sudo: True
+  become: True
   when: (install.stat.isdir is not defined or not install.stat.isdir or kafka_force_update)
   args:
     chdir: "{{kafka_tmp_unpack_dir}}"
 
 - name: Move into place
   command: mv {{kafka_tmp_unpack_dir}} {{kafka_install_dir}}
-  sudo: True
+  become: True
   when: (install.stat.isdir is not defined or not install.stat.isdir or kafka_force_update)
   args:
     creates: "{{kafka_install_dir}}"
 
 - name: Chown to kafka
-  sudo: True
+  become: True
   file:
     path: "{{kafka_install_dir}}"
     owner: "{{kafka_user}}"
