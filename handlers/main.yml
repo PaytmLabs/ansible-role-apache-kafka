@@ -1,7 +1,7 @@
 ---
 - name: restart monit
   service: name=monit state=restarted
-  become: yes
+  become: True
   when: not (is_integration_test is defined and is_integration_test and
       (ansible_os_family == "RedHat" or ansible_distribution == "CentOS"))
 
@@ -9,16 +9,16 @@
 # https://issues.apache.org/jira/browse/KAFKA-1229
 - name: restart kafka
   shell: '/etc/init.d/kafka.sh stop && /etc/init.d/kafka.sh start'
-  become: yes
+  become: True
   when: not (ansible_distribution == 'CentOS' and ansible_distribution_major_version > '6')
 
 - name: restart kafka
   shell: 'service kafka stop && service kafka start'
-  become: yes  
+  become: True
   when: (ansible_distribution == 'CentOS' and ansible_distribution_major_version > '6')
   
 - name: reload config
   shell: 'systemctl daemon-reload'
-  become: yes
+  become: True
   when: (ansible_distribution == 'CentOS' and ansible_distribution_major_version > '6')
 
