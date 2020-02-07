@@ -1,6 +1,6 @@
 ---
 - name: Make log directory
-  become: True
+  become: yes
   file:
     path: "{{kafka_log_directory}}"
     owner: "{{kafka_user}}"
@@ -8,7 +8,7 @@
     state: directory
 
 - name: Install kafka mirror config (consumer)
-  become: True
+  become: yes
   with_items: "{{ kafka_mirrors }}"
   template: >
     src=kafka-mirror-consumer.properties.j2
@@ -16,7 +16,7 @@
     owner={{kafka_user}}
 
 - name: Install kafka mirror config (producer)
-  become: True
+  become: yes
   with_items: "{{ kafka_mirrors }}"
   template: >
     src=kafka-mirror-producer.properties.j2
@@ -24,14 +24,14 @@
     owner={{kafka_user}}
 
 - name: Install kafka mirror log4j properties
-  become: True
+  become: yes
   template: >
     src=mirror-log4j.properties.j2
     dest={{kafka_install_dir}}/config/{{kafka_default_file_basename_prefix}}mirror-log4j.properties
     owner={{kafka_user}}
 
 - name: Install kafka systemd service
-  become: True
+  become: yes
   with_items: "{{ kafka_mirrors }}"
   template: >
     src=kafka-mirror-systemd.service.j2
