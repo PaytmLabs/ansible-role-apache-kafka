@@ -7,7 +7,7 @@
   changed_when: False
 
 - name: Create kafka user
-  sudo: True
+  become: yes
   user:
     name: "{{kafka_user}}"
     comment: "Kafka user"
